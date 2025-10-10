@@ -7,6 +7,7 @@ python-dotenv>=1.0
 pytest>=8.2
 
 flask-socketio
+flask_cors
 Pillow
 mistune
 requests
