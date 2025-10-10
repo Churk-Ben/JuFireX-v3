@@ -21,14 +21,17 @@ import { RouterLink, RouterView } from "vue-router";
 	margin: 0 auto;
 	padding: 0 16px;
 }
+
 .header {
 	padding: 12px 0;
 	border-bottom: 1px solid #eee;
 }
+
 .nav {
 	display: flex;
 	gap: 12px;
 }
+
 .content {
 	padding: 16px 0;
 }

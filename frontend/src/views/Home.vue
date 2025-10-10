@@ -13,7 +13,7 @@ const status = ref("检测中...");
 
 onMounted(async () => {
 	try {
-		const res = await http.get("/health");
+		const res = await http.get("/api/hello");
 		status.value = String(res?.status || "ok");
 	} catch (e) {
 		status.value = "连接失败";
