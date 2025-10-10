@@ -3,7 +3,11 @@ import { createPinia } from "pinia";
 
 import router from "./router";
 
-import "./styles/main.css";
+import "./styles/global/main.css";
+import "./styles/global/alert.css";
+import "./styles/global/badge.css";
+import "./styles/global/button.css";
+import "./styles/global/card.css";
 
 import App from "./App.vue";
 

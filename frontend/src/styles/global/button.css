@@ -1,0 +1,62 @@
+/* Migrated from temp/static/css/button.css */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--github-border);
+    background-color: var(--github-secondary);
+    color: var(--github-text);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-action:hover {
+    background-color: rgba(240, 248, 255, 0.1);
+    border-color: var(--github-border);
+}
+
+.btn-outline-light {
+    border: 1px solid var(--github-border) !important;
+    color: var(--github-text) !important;
+}
+
+.btn-outline-light:hover {
+    color: #fff !important;
+}
+
+.btn-outline-primary {
+    border: 1px solid var(--github-border) !important;
+    color: var(--github-accent) !important;
+}
+
+.btn-outline-primary:hover {
+    color: #fff !important;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* 自定义关闭按钮 */
+.btn-close {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent url('/img/close.svg') no-repeat center center / 16px 16px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-close:hover {
+    background-image: url('/img/close.hover.svg');
+    background-color: rgba(240, 248, 255, 0.15);
+    border-color: var(--github-border);
+}

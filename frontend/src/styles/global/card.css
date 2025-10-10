@@ -1,0 +1,62 @@
+/* Migrated from temp/static/css/card.css */
+.card {
+    background-color: var(--github-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
+    color: var(--github-text);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.card-header,
+.card-footer {
+    border-color: var(--github-border);
+}
+
+.card-body {
+    color: var(--github-text);
+}
+
+.card table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.card table td,
+.card table th {
+    border-color: var(--github-border);
+}
+
+.nav-card {
+    display: block;
+    padding: 14px 16px;
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
+    background-color: var(--github-secondary);
+    color: var(--github-text);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav-card:hover {
+    background-color: rgba(240, 248, 255, 0.1);
+    border-color: var(--github-border);
+}
+
+.nav-card-title {
+    font-weight: 600;
+}
+
+.project-card {
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
+    background-color: var(--github-secondary);
+    color: var(--github-text);
+}
+
+.project-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,92 @@
+/* Migrated from temp/static/css/alert.css */
+.jfs-alert {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 600px;
+    z-index: 1055;
+    border-radius: 6px;
+    border: 1px solid var(--github-border);
+    background-color: var(--github-secondary);
+    color: var(--github-text);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    display: none;
+}
+
+.jfs-alert.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.jfs-alert .alert-header,
+.jfs-alert .alert-body {
+    padding: 10px 12px;
+}
+
+.jfs-alert .alert-header {
+    border-bottom: 1px solid var(--github-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.jfs-alert .alert-title {
+    font-weight: 600;
+    margin: 0;
+    font-size: 14px;
+}
+
+.jfs-alert .alert-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.jfs-alert .alert-close:hover {
+    background-color: rgba(240, 248, 255, 0.15);
+    border-color: var(--github-border);
+}
+
+.jfs-alert .alert-icon {
+    margin-right: 8px;
+}
+
+.jfs-alert .alert-body {
+    font-size: 13px;
+    color: var(--github-text);
+}
+
+/* 类型样式 */
+.jfs-alert.success {
+    border-left: 3px solid var(--github-success);
+}
+.jfs-alert.danger {
+    border-left: 3px solid var(--github-danger);
+}
+.jfs-alert.info {
+    border-left: 3px solid var(--github-accent);
+}
+.jfs-alert.warning {
+    border-left: 3px solid var(--github-warning);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -10px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
