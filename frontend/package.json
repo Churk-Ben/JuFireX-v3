@@ -1,0 +1,25 @@
+{
+  "name": "jufirex-frontend",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --mode development",
+    "build:prod": "vite build --mode production",
+    "build:stag": "vite build --mode staging",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "axios": "^1.7.2",
+    "pinia": "^2.1.7",
+    "vue": "^3.4.27",
+    "vue-router": "^4.3.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.5",
+    "typescript": "^5.4.5",
+    "vite": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
