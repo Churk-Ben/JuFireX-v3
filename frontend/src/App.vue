@@ -1,13 +1,15 @@
 <template>
-  <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
+  <n-config-provider :theme-overrides="themeOverrides" :theme="darkTheme">
     <n-global-style />
-    <div class="layout">
-      <NavBar />
-      <section class="content">
-        <RouterView />
-      </section>
-      <AppFooter />
-    </div>
+    <n-message-provider>
+      <div class="layout">
+        <NavBar />
+        <section class="content">
+          <RouterView />
+        </section>
+        <AppFooter />
+      </div>
+    </n-message-provider>
   </n-config-provider>
 </template>
 
@@ -19,6 +21,7 @@ import {
   darkTheme,
   NConfigProvider,
   NGlobalStyle,
+  NMessageProvider,
   GlobalThemeOverrides,
 } from 'naive-ui'
 
