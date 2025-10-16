@@ -22,18 +22,32 @@
   </n-space>
 
   <n-space>
-    <n-card title="卡片插槽示例">
-      <template #header-extra>
-        #header-extra
-      </template>
-      卡片内容
-      <template #footer>
-        #footer
-      </template>
-      <template #action>
-        #action
-      </template>
-    </n-card>
+    <n-flex wrap gap="20">
+      <n-card title="卡片插槽示例">
+        <template #header-extra>
+          #header-extra
+        </template>
+        卡片内容
+        <template #footer>
+          #footer
+        </template>
+        <template #action>
+          #action
+        </template>
+      </n-card>
+      <n-card title="卡片插槽示例">
+        <template #header-extra>
+          #header-extra
+        </template>
+        卡片内容
+        <template #footer>
+          #footer
+        </template>
+        <template #action>
+          #action
+        </template>
+      </n-card>
+    </n-flex>
   </n-space>
 
   <n-space>
@@ -66,14 +80,14 @@
 
   <n-space>
     <n-dropdown trigger="click" :options="options" @select="handleSelect">
-      <n-button>点击！</n-button>
+      <n-button>点击!!!</n-button>
     </n-dropdown>
   </n-space>
 
 </template>
 
 <script setup lang="ts">
-import { NButton, NSpace, NCard, NAvatar, NTag, NDropdown } from 'naive-ui'
+import { NButton, NSpace, NCard, NAvatar, NTag, NDropdown, NFlex } from 'naive-ui'
 import { useMessage } from 'naive-ui'
 import { ref } from 'vue'
 

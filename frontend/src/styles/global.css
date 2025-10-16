@@ -1,10 +1,18 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    background-color: #808080;
-    transition: all 0.3s ease;
+  opacity: 1;
+  visibility: visible;
+  filter: blur(0);
+  background-color: #202020;
+  transition: all .3s;
+  overflow: hidden;
+}
+
+body.app-loaded {
+  overflow-y: auto;
 }
