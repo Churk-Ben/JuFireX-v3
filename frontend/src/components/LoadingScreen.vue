@@ -5,12 +5,9 @@
         <div class="logo-container">
           <img src="/logo.svg" alt="JuFireX" class="logo" />
         </div>
-        <div class="loading-spinner">
-          <n-spin size="large" />
-        </div>
         <div class="loading-text">
           <h3>JuFireX</h3>
-          <p>正在加载中...</p>
+          <p>Loading...</p>
         </div>
       </div>
     </div>
@@ -18,8 +15,6 @@
 </template>
 
 <script setup lang="ts">
-import { NSpin } from 'naive-ui'
-
 interface Props {
   isLoading: boolean
 }
@@ -59,10 +54,6 @@ defineProps<Props>()
   animation: float 3s ease-in-out infinite;
 }
 
-.loading-spinner {
-  margin: 2rem 0;
-}
-
 .loading-text h3 {
   font-size: 2rem;
   font-weight: 600;
@@ -95,9 +86,12 @@ defineProps<Props>()
 
 /* 浮动动画 */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -105,9 +99,12 @@ defineProps<Props>()
 
 /* 脉冲动画 */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.8;
   }
@@ -119,11 +116,11 @@ defineProps<Props>()
     width: 60px;
     height: 60px;
   }
-  
+
   .loading-text h3 {
     font-size: 1.5rem;
   }
-  
+
   .loading-text p {
     font-size: 0.9rem;
   }
