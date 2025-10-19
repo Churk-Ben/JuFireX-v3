@@ -187,7 +187,7 @@ function handleMenuSelect(key: string) {
     router.push(key)
   }
 
-  alert(`导航到: ${key}`)
+  console.log(`导航到: ${key}`)
 }
 
 // 主题切换逻辑
