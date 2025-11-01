@@ -1,9 +1,9 @@
 import http from "@/utils/request";
 
 export interface HelloResponse {
-  message: string;
+	message: string;
 }
 
 export async function getHelloStatus(): Promise<HelloResponse> {
-  return await http.get("/hello");
+	return await http.get("/hello");
 }
