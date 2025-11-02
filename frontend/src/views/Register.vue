@@ -14,12 +14,12 @@
         <n-button-group>
             <n-button @click="prev">
                 <template #icon>
-                    <i class="fas fa-arrow-left"></i>
+                    <i class="fas fa-angle-left"></i>
                 </template>
             </n-button>
             <n-button @click="next">
                 <template #icon>
-                    <i class="fas fa-arrow-right"></i>
+                    <i class="fas fa-angle-right"></i>
                 </template>
             </n-button>
         </n-button-group>
