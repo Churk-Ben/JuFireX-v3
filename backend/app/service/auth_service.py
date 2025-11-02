@@ -275,6 +275,7 @@ class AuthService:
         
         if not session:
             return {
+                'isLoggedIn': False,
                 'is_authenticated': False,
                 'user': None,
                 'session': None
@@ -283,12 +284,14 @@ class AuthService:
         user = user_service.get_user_by_id(session['user_id'])
         if not user:
             return {
+                'isLoggedIn': False,
                 'is_authenticated': False,
                 'user': None,
                 'session': None
             }
         
         return {
+            'isLoggedIn': True,
             'is_authenticated': True,
             'user': {
                 'id': user['id'],
