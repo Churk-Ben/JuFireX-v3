@@ -32,7 +32,6 @@
 import type { FormInst, FormItemInst, FormItemRule, FormRules } from 'naive-ui'
 import { NButton, NCard, NForm, NFormItem, NInput } from 'naive-ui'
 import { useMessage } from 'naive-ui'
-import { stringify } from 'querystring'
 import { ref } from 'vue'
 
 interface ModelType {
