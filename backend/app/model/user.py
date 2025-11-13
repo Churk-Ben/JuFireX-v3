@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from app.model import db
 
 
@@ -26,8 +26,8 @@ class User(db.Model):
     is_verified = db.Column(db.Boolean, default=False, nullable=False, comment="是否已验证邮箱")
     
     # 时间戳字段
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, comment="创建时间")
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False, comment="更新时间")
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), nullable=False, comment="创建时间")
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC), nullable=False, comment="更新时间")
     last_login_at = db.Column(db.DateTime, nullable=True, comment="最后登录时间")
 
     def __repr__(self) -> str:

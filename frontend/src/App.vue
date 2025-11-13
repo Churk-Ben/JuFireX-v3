@@ -27,18 +27,14 @@
 
 
 									<div class="action col-md-4 d-flex justify-content-end align-items-center gap-2">
-										<!-- 开发调试用的登录状态切换开关 -->
-										<n-switch v-model:value="userStore.isLoggedIn" @update:value="handleDebugLoginToggle" />
-
 										<ToggleTag :icon="'fas fa-circle-half-stroke'"
 											:text="isDarkTheme ? 'Light' : 'Dark'" @click="handleThemeChange" />
 
-										<ToggleTag v-if="userStore.isLoggedIn" 
-											:avatar-src="userStore.avatar || avatarImage" 
+										<ToggleTag v-if="userStore.isLoggedIn"
+											:avatar-src="userStore.avatar || avatarImage"
 											:avatar-alt="userStore.nickname || 'User'"
-											:text="userStore.nickname || 'User'" 
-											:permission-level="userStore.permission" 
-											@click="handleUserProfile" />
+											:text="userStore.nickname || 'User'"
+											:permission-level="userStore.permission" @click="handleUserProfile" />
 
 										<ToggleTag v-else :icon="'fas fa-user-circle'" :avatar-alt="'Login'"
 											text="Login" :permission-level="0" @click="handleUserProfile" />
@@ -187,10 +183,10 @@ const menuOptions: MenuOption[] = [
 onMounted(async () => {
 	try {
 		await nextTick();
-		
+
 		// 初始化用户状态
 		await userStore.initUserState();
-		
+
 		await new Promise(resolve => setTimeout(resolve, 1500));
 
 		// 确保所有异步操作完成后再隐藏加载屏幕

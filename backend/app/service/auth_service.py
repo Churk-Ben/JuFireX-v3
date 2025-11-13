@@ -7,9 +7,12 @@
 
 import hashlib
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from typing import Dict, Optional, Any
 from app.exception.api_exception import ApiException
+from app.model import db
+from app.model.user import User
+from werkzeug.security import generate_password_hash, check_password_hash
 from app.service.user_service import user_service
 
 
@@ -17,35 +20,12 @@ class AuthService:
     """认证服务类"""
     
     def __init__(self):
-        # 模拟会话存储
-        self._mock_sessions = {}
-        # 模拟密码存储（实际应用中应该使用加密存储）
-        self._mock_passwords = {
-            'admin': self._hash_password('admin123'),
-            'user001': self._hash_password('password123')
-        }
-        # 模拟用户ID计数器
-        self._next_user_id = 3
+        pass
     
     def _hash_password(self, password: str) -> str:
-        """
-        密码哈希处理
-        
-        Args:
-            password (str): 原始密码
-            
-        Returns:
-            str: 哈希后的密码
-        """
-        return hashlib.sha256(password.encode()).hexdigest()
+        return generate_password_hash(password)
     
     def _generate_session_token(self) -> str:
-        """
-        生成会话令牌
-        
-        Returns:
-            str: 会话令牌
-        """
         return secrets.token_urlsafe(32)
     
     def register_user(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -67,42 +47,28 @@ class AuthService:
             raise ApiException(400, "注册数据验证失败", errors)
         
         # 检查用户名和邮箱是否已存在
-        if user_service.get_user_by_username(user_data['username']):
+        if User.query.filter_by(username=user_data['username'].strip()).first():
             raise ApiException(400, "用户名已存在")
-        
-        if user_service.get_user_by_email(user_data['email']):
+        if User.query.filter_by(email=user_data['email'].strip()).first():
             raise ApiException(400, "邮箱已存在")
-        
-        # 创建新用户（模拟）
-        new_user_id = self._next_user_id
-        self._next_user_id += 1
-        
-        new_user = {
-            'id': new_user_id,
-            'username': user_data['username'].strip(),
-            'nickname': user_data['nickname'].strip(),
-            'email': user_data['email'].strip(),
-            'avatar': user_data.get('avatar', '/static/avatars/default.jpg'),
-            'permission': user_data.get('permission', 1),
-            'is_active': True,
-            'is_verified': False,
-            'created_at': datetime.utcnow().isoformat(),
-            'updated_at': datetime.utcnow().isoformat(),
-            'last_login_at': None
-        }
-        
-        # 存储密码哈希
-        self._mock_passwords[user_data['username']] = self._hash_password(user_data['password'])
-        
-        # 添加到用户服务的模拟数据中
-        user_service._mock_users[new_user_id] = new_user
-        
+        user = User(
+            username=user_data['username'].strip(),
+            nickname=user_data['nickname'].strip(),
+            email=user_data['email'].strip(),
+            password=self._hash_password(user_data['password']),
+            avatar=user_data.get('avatar', '/static/avatars/default.jpg'),
+            permission=user_data.get('permission', 1),
+            is_active=True,
+            is_verified=False
+        )
+        db.session.add(user)
+        db.session.commit()
         return {
-            'user_id': new_user_id,
-            'username': new_user['username'],
-            'nickname': new_user['nickname'],
-            'email': new_user['email'],
-            'created_at': new_user['created_at']
+            'user_id': user.id,
+            'username': user.username,
+            'nickname': user.nickname,
+            'email': user.email,
+            'created_at': user.created_at.isoformat() if user.created_at else None
         }
     
     def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
@@ -119,24 +85,14 @@ class AuthService:
         if not username or not password:
             return None
         
-        # 获取用户信息
-        user = user_service.get_user_by_username(username)
+        user = User.query.filter_by(username=username).first()
         if not user:
             return None
-        
-        # 验证密码
-        stored_password_hash = self._mock_passwords.get(username)
-        if not stored_password_hash:
+        if not check_password_hash(user.password, password):
             return None
-        
-        if stored_password_hash != self._hash_password(password):
+        if not user.is_active:
             return None
-        
-        # 检查用户状态
-        if not user.get('is_active', False):
-            return None
-        
-        return user
+        return user.to_dict()
     
     def login_user(self, username: str, password: str) -> Dict[str, Any]:
         """
@@ -160,36 +116,21 @@ class AuthService:
         if not user:
             raise ApiException(401, "用户名或密码错误")
         
-        # 生成会话令牌
-        session_token = self._generate_session_token()
-        
-        # 创建会话信息
-        session_info = {
-            'token': session_token,
-            'user_id': user['id'],
-            'username': user['username'],
-            'created_at': datetime.utcnow().isoformat(),
-            'expires_at': (datetime.utcnow() + timedelta(days=7)).isoformat(),
-            'is_active': True
-        }
-        
-        # 存储会话
-        self._mock_sessions[session_token] = session_info
-        
         # 更新用户最后登录时间
-        user['last_login_at'] = datetime.utcnow().isoformat()
-        user_service._mock_users[user['id']] = user
-        
+        user_obj = db.session.get(User, user['id'])
+        if user_obj:
+            user_obj.last_login_at = datetime.now(UTC)
+            db.session.commit()
         return {
-            'token': session_token,
+            'token': 'placeholder',
             'user': {
                 'id': user['id'],
                 'username': user['username'],
                 'nickname': user['nickname'],
-                'avatar': user['avatar'],
-                'permission': user['permission']
+                'avatar': user.get('avatar'),
+                'permission': user.get('permission', 1)
             },
-            'expires_at': session_info['expires_at']
+            'expires_at': (datetime.now(UTC) + timedelta(minutes=30)).isoformat()
         }
     
     def logout_user(self, session_token: str) -> bool:
@@ -202,17 +143,6 @@ class AuthService:
         Returns:
             bool: 登出是否成功
         """
-        if not session_token:
-            return False
-        
-        session = self._mock_sessions.get(session_token)
-        if not session:
-            return False
-        
-        # 标记会话为非活跃状态
-        session['is_active'] = False
-        session['logout_at'] = datetime.utcnow().isoformat()
-        
         return True
     
     def get_session_info(self, session_token: str) -> Optional[Dict[str, Any]]:
@@ -225,24 +155,7 @@ class AuthService:
         Returns:
             Optional[Dict[str, Any]]: 会话信息，如果会话无效则返回None
         """
-        if not session_token:
-            return None
-        
-        session = self._mock_sessions.get(session_token)
-        if not session:
-            return None
-        
-        # 检查会话是否活跃
-        if not session.get('is_active', False):
-            return None
-        
-        # 检查会话是否过期
-        expires_at = datetime.fromisoformat(session['expires_at'])
-        if datetime.utcnow() > expires_at:
-            session['is_active'] = False
-            return None
-        
-        return session.copy()
+        return None
     
     def get_current_user(self, session_token: str) -> Optional[Dict[str, Any]]:
         """
@@ -254,12 +167,7 @@ class AuthService:
         Returns:
             Optional[Dict[str, Any]]: 用户信息，如果会话无效则返回None
         """
-        session = self.get_session_info(session_token)
-        if not session:
-            return None
-        
-        user = user_service.get_user_by_id(session['user_id'])
-        return user
+        return None
     
     def check_auth_status(self, session_token: str) -> Dict[str, Any]:
         """
@@ -271,40 +179,11 @@ class AuthService:
         Returns:
             Dict[str, Any]: 认证状态信息
         """
-        session = self.get_session_info(session_token)
-        
-        if not session:
-            return {
-                'isLoggedIn': False,
-                'is_authenticated': False,
-                'user': None,
-                'session': None
-            }
-        
-        user = user_service.get_user_by_id(session['user_id'])
-        if not user:
-            return {
-                'isLoggedIn': False,
-                'is_authenticated': False,
-                'user': None,
-                'session': None
-            }
-        
         return {
-            'isLoggedIn': True,
-            'is_authenticated': True,
-            'user': {
-                'id': user['id'],
-                'username': user['username'],
-                'nickname': user['nickname'],
-                'avatar': user['avatar'],
-                'permission': user['permission']
-            },
-            'session': {
-                'token': session['token'],
-                'created_at': session['created_at'],
-                'expires_at': session['expires_at']
-            }
+            'isLoggedIn': False,
+            'is_authenticated': False,
+            'user': None,
+            'session': None
         }
     
     def refresh_session(self, session_token: str) -> Optional[Dict[str, Any]]:
@@ -317,23 +196,7 @@ class AuthService:
         Returns:
             Optional[Dict[str, Any]]: 刷新后的会话信息，如果会话无效则返回None
         """
-        session = self.get_session_info(session_token)
-        if not session:
-            return None
-        
-        # 延长会话过期时间
-        new_expires_at = (datetime.utcnow() + timedelta(days=7)).isoformat()
-        session['expires_at'] = new_expires_at
-        session['refreshed_at'] = datetime.utcnow().isoformat()
-        
-        # 更新存储的会话信息
-        self._mock_sessions[session_token] = session
-        
-        return {
-            'token': session['token'],
-            'expires_at': session['expires_at'],
-            'refreshed_at': session['refreshed_at']
-        }
+        return None
 
 
 # 创建服务实例

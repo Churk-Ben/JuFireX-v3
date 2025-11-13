@@ -9,41 +9,15 @@ import re
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from app.exception.api_exception import ApiException
+from app.model import db
+from app.model.user import User
 
 
 class UserService:
     """用户服务类"""
     
     def __init__(self):
-        # 模拟用户数据存储
-        self._mock_users = {
-            1: {
-                'id': 1,
-                'username': 'admin',
-                'nickname': 'Administrator',
-                'email': 'admin@jufirex.com',
-                'avatar': '/static/avatars/admin.jpg',
-                'permission': 3,
-                'is_active': True,
-                'is_verified': True,
-                'created_at': '2024-01-01T00:00:00',
-                'updated_at': '2024-01-01T00:00:00',
-                'last_login_at': '2024-01-15T10:30:00'
-            },
-            2: {
-                'id': 2,
-                'username': 'user001',
-                'nickname': 'Aurore',
-                'email': 'aurore@example.com',
-                'avatar': '/static/avatars/aurore.jpg',
-                'permission': 1,
-                'is_active': True,
-                'is_verified': True,
-                'created_at': '2024-01-02T00:00:00',
-                'updated_at': '2024-01-02T00:00:00',
-                'last_login_at': '2024-01-15T09:15:00'
-            }
-        }
+        pass
     
     def get_user_by_id(self, user_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -61,11 +35,10 @@ class UserService:
         if not isinstance(user_id, int) or user_id <= 0:
             raise ApiException(400, "用户ID必须是正整数")
         
-        user = self._mock_users.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
             return None
-            
-        return user.copy()
+        return user.to_dict()
     
     def get_user_by_username(self, username: str) -> Optional[Dict[str, Any]]:
         """
@@ -80,10 +53,8 @@ class UserService:
         if not username or not isinstance(username, str):
             return None
             
-        for user in self._mock_users.values():
-            if user['username'] == username:
-                return user.copy()
-        return None
+        user = User.query.filter_by(username=username).first()
+        return user.to_dict() if user else None
     
     def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         """
@@ -98,10 +69,8 @@ class UserService:
         if not email or not isinstance(email, str):
             return None
             
-        for user in self._mock_users.values():
-            if user['email'] == email:
-                return user.copy()
-        return None
+        user = User.query.filter_by(email=email).first()
+        return user.to_dict() if user else None
     
     def get_user_public_info(self, user_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -213,8 +182,8 @@ class UserService:
         Raises:
             ApiException: 当用户不存在或数据验证失败时抛出异常
         """
-        user = self.get_user_by_id(user_id)
-        if not user:
+        user_obj = User.query.get(user_id)
+        if not user_obj:
             raise ApiException(404, "用户不存在")
         
         # 验证更新数据
@@ -224,16 +193,17 @@ class UserService:
         
         # 模拟更新操作
         allowed_fields = ['nickname', 'avatar', 'permission']
-        for field in allowed_fields:
-            if field in update_data:
-                user[field] = update_data[field]
-        
-        user['updated_at'] = datetime.utcnow().isoformat()
-        
-        # 更新模拟数据
-        self._mock_users[user_id] = user
-        
-        return user.copy()
+        if 'nickname' in update_data:
+            user_obj.nickname = update_data['nickname']
+        if 'avatar' in update_data:
+            user_obj.avatar = update_data['avatar']
+        if 'permission' in update_data:
+            try:
+                user_obj.permission = int(update_data['permission'])
+            except (ValueError, TypeError):
+                pass
+        db.session.commit()
+        return user_obj.to_dict()
     
     def get_users_list(self, page: int = 1, per_page: int = 10, search: str = None) -> Dict[str, Any]:
         """
@@ -247,38 +217,13 @@ class UserService:
         Returns:
             Dict[str, Any]: 包含用户列表和分页信息的字典
         """
-        users = list(self._mock_users.values())
-        
-        # 搜索过滤
+        query = User.query
         if search:
-            search = search.lower()
-            users = [
-                user for user in users
-                if search in user['username'].lower() or 
-                   search in user['nickname'].lower() or 
-                   search in user['email'].lower()
-            ]
-        
-        # 分页处理
-        total = len(users)
-        start = (page - 1) * per_page
-        end = start + per_page
-        users = users[start:end]
-        
-        # 返回公开信息
-        public_users = [
-            {
-                'id': user['id'],
-                'username': user['username'],
-                'nickname': user['nickname'],
-                'avatar': user['avatar'],
-                'permission': user['permission'],
-                'is_active': user['is_active'],
-                'created_at': user['created_at']
-            }
-            for user in users
-        ]
-        
+            like = f"%{search}%"
+            query = query.filter((User.username.like(like)) | (User.nickname.like(like)) | (User.email.like(like)))
+        total = query.count()
+        users = query.order_by(User.id.asc()).offset((page - 1) * per_page).limit(per_page).all()
+        public_users = [u.to_public_dict() | {'is_active': u.is_active} for u in users]
         return {
             'users': public_users,
             'pagination': {

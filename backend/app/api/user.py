@@ -6,6 +6,7 @@
 """
 
 from flask import Blueprint, request, g
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.service.user_service import user_service
 from app.service.auth_service import auth_service
 from app.utils.responses import success, fail
@@ -77,6 +78,7 @@ def get_user_info(user_id):
 
 
 @bp.route("/session", methods=["GET"])
+@jwt_required()
 def get_user_session():
     """
     获取用户session信息接口
@@ -114,18 +116,22 @@ def get_user_session():
         }
     """
     try:
-        # 获取会话令牌
-        session_token = get_session_token()
-        if not session_token:
-            return fail(401, "未提供会话令牌")
-        
-        # 检查认证状态
-        auth_status = auth_service.check_auth_status(session_token)
-        
-        if not auth_status['is_authenticated']:
-            return fail(401, "会话无效或已过期")
-        
-        return success(auth_status, "获取会话信息成功")
+        user_id = get_jwt_identity()
+        if not user_id:
+            return fail(401, "未认证")
+        current_user = user_service.get_user_by_id(user_id)
+        if not current_user:
+            return fail(401, "用户不存在或会话无效")
+        return success({
+            'user': {
+                'id': current_user['id'],
+                'username': current_user['username'],
+                'nickname': current_user['nickname'],
+                'avatar': current_user.get('avatar'),
+                'permission': current_user.get('permission', 1)
+            },
+            'session': None
+        }, "获取会话信息成功")
         
     except ApiException as e:
         return fail(e.code, e.message, e.data if hasattr(e, 'data') else None)
@@ -134,6 +140,7 @@ def get_user_session():
 
 
 @bp.route("/info", methods=["GET"])
+@jwt_required()
 def get_user_detailed_info():
     """
     获取用户详细信息接口
@@ -170,17 +177,12 @@ def get_user_detailed_info():
         }
     """
     try:
-        # 获取会话令牌
-        session_token = get_session_token()
-        if not session_token:
-            return fail(401, "未提供会话令牌")
-        
-        # 获取当前用户信息
-        user_info = auth_service.get_current_user(session_token)
-        
+        user_id = get_jwt_identity()
+        if not user_id:
+            return fail(401, "未认证")
+        user_info = user_service.get_user_by_id(user_id)
         if not user_info:
-            return fail(401, "会话无效或已过期")
-        
+            return fail(401, "用户不存在或会话无效")
         return success(user_info, "获取用户详细信息成功")
         
     except ApiException as e:
@@ -190,6 +192,7 @@ def get_user_detailed_info():
 
 
 @bp.route("/profile", methods=["PUT"])
+@jwt_required()
 def update_user_profile():
     """
     更新用户资料接口
@@ -236,15 +239,12 @@ def update_user_profile():
         }
     """
     try:
-        # 获取会话令牌
-        session_token = get_session_token()
-        if not session_token:
-            return fail(401, "未提供会话令牌")
-        
-        # 获取当前用户信息
-        current_user = auth_service.get_current_user(session_token)
+        user_id = get_jwt_identity()
+        if not user_id:
+            return fail(401, "未认证")
+        current_user = user_service.get_user_by_id(user_id)
         if not current_user:
-            return fail(401, "会话无效或已过期")
+            return fail(401, "用户不存在或会话无效")
         
         # 获取请求数据
         data = request.get_json()
@@ -263,6 +263,7 @@ def update_user_profile():
 
 
 @bp.route("/list", methods=["GET"])
+@jwt_required()
 def get_users_list():
     """
     获取用户列表接口（管理员功能）
@@ -300,15 +301,12 @@ def get_users_list():
         }
     """
     try:
-        # 获取会话令牌
-        session_token = get_session_token()
-        if not session_token:
-            return fail(401, "未提供会话令牌")
-        
-        # 获取当前用户信息
-        current_user = auth_service.get_current_user(session_token)
+        user_id = get_jwt_identity()
+        if not user_id:
+            return fail(401, "未认证")
+        current_user = user_service.get_user_by_id(user_id)
         if not current_user:
-            return fail(401, "会话无效或已过期")
+            return fail(401, "用户不存在或会话无效")
         
         # 检查权限（只有管理员可以查看用户列表）
         if current_user.get('permission', 0) < 2:
