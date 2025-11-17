@@ -37,9 +37,9 @@ deploy/dist/
 *.pid
 
 # idles
-.vscode\
-.idea\
-.trae\*
+.vscode/
+.idea/
+.trae/
 
 # 排除项目文档文件夹
 projects/
